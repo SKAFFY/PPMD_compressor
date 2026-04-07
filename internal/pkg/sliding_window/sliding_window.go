@@ -32,14 +32,14 @@ func (w *SlidingWindow) GetContext(order int) []byte {
 		return []byte{}
 	}
 
-	сontext := make([]byte, order)
+	context := make([]byte, order)
 	for i := 0; i < order; i++ {
 		idx := (w.pos - order + i) % len(w.buf)
 		if idx < 0 {
 			idx += len(w.buf)
 		}
-		сontext[i] = w.buf[idx]
+		context[i] = w.buf[idx]
 	}
 
-	return сontext
+	return context
 }
