@@ -40,9 +40,9 @@ func main() {
 
 	bufTargetFile := bufio.NewWriterSize(targetFile, *writerBufferSize)
 
-	arithmeticEncoder := arithmetic_encoder_decoder.NewArithmeticEncoder()
+	arithmeticEncoder := arithmetic_encoder_decoder.NewArithmeticEncoder(bufTargetFile)
 
-	compressor := compressor_decompressor.NewCompressor(bufTargetFile, arithmeticEncoder, *maxContextOrder)
+	compressor := compressor_decompressor.NewCompressor(arithmeticEncoder, *maxContextOrder)
 
 	defer func() {
 		if err := compressor.Close(); err != nil {

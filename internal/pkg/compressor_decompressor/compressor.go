@@ -10,21 +10,20 @@ const (
 	Escape int = 1
 )
 
-type Encoder interface {
-	Encode(sym byte, cumFreq []uint32, totalFreq uint32)
-	Flush() []byte
+// EncoderWriter should write to destination
+type EncoderWriter interface {
+	Encode(sym byte, cumFreq []uint64, totalFreq uint64)
+	Flush() error
 }
 
 type Compressor struct {
-	dst io.Writer
-
-	encoder       Encoder
+	encoder       EncoderWriter
 	contextTree   *context_tree.ContextTree
 	maxOrder      int
 	slidingWindow *sliding_window.SlidingWindow
 }
 
-func NewCompressor(dst io.Writer, encoder Encoder, maxOrder int) *Compressor {
+func NewCompressor(encoder EncoderWriter, maxOrder int) *Compressor {
 	return &Compressor{
 		dst:           dst,
 		encoder:       encoder,
@@ -45,7 +44,6 @@ func (c *Compressor) Close() error {
 }
 
 func (c *Compressor) compress(data []byte) []byte {
-
 	for _, sym := range data {
 		order := c.maxOrder
 		context := c.slidingWindow.GetContext(order)
