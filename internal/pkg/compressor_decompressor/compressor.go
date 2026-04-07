@@ -2,6 +2,7 @@ package compressor_decompressor
 
 import (
 	"PPMA_compressor/internal/pkg/context_tree"
+	"PPMA_compressor/internal/pkg/sliding_window"
 	"io"
 )
 
@@ -20,7 +21,7 @@ type Compressor struct {
 	encoder       Encoder
 	contextTree   *context_tree.ContextTree
 	maxOrder      int
-	slidingWindow *slidingWindow
+	slidingWindow *sliding_window.SlidingWindow
 }
 
 func NewCompressor(dst io.Writer, encoder Encoder, maxOrder int) *Compressor {
@@ -29,12 +30,13 @@ func NewCompressor(dst io.Writer, encoder Encoder, maxOrder int) *Compressor {
 		encoder:       encoder,
 		contextTree:   context_tree.NewContextTree(maxOrder),
 		maxOrder:      maxOrder,
-		slidingWindow: NewSlidingWindow(maxOrder),
+		slidingWindow: sliding_window.NewSlidingWindow(maxOrder),
 	}
 }
 
 func (c *Compressor) Write(p []byte) (n int, err error) {
-
+	//TODO implement me
+	panic("implement me")
 }
 
 func (c *Compressor) Close() error {
