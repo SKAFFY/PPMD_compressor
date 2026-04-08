@@ -22,7 +22,6 @@ func NewArithmeticDecoder(r io.Reader) *ArithmeticDecoder {
 	}
 	for i := 0; i < CodeValueBits; i++ {
 		bit := d.readBit()
-
 		d.value = (d.value << 1) | bit
 	}
 	return d
@@ -40,14 +39,15 @@ func (d *ArithmeticDecoder) readBit() uint64 {
 			d.buf = 0
 			d.bits = 8
 		}
-		_ = err
+		_ = err // игнорируем ошибку, т.к. при реальном EOF чтение прекратится позже
 	}
 	d.bits--
-
 	return uint64((d.buf >> d.bits) & 1)
 }
 
-func (d *ArithmeticDecoder) Decode(cumFreq []uint64, totalFreq uint64) (byte, error) {
+// Decode декодирует символ (int) из потока на основе накопительных частот cumFreq и totalFreq.
+// Возвращает символ в диапазоне [0, len(cumFreq)-2] (например, 0..255 или 256 для escape).
+func (d *ArithmeticDecoder) Decode(cumFreq []uint64, totalFreq uint64) (int, error) {
 	if d.err != nil {
 		return 0, fmt.Errorf("decode previous err exists: %w", io.ErrUnexpectedEOF)
 	}
@@ -58,7 +58,7 @@ func (d *ArithmeticDecoder) Decode(cumFreq []uint64, totalFreq uint64) (byte, er
 	for lo <= hi {
 		mid := (lo + hi) / 2
 		if cumFreq[mid] <= scaled && scaled < cumFreq[mid+1] {
-			sym := byte(mid)
+			sym := mid
 			d.high = d.low + (rng*cumFreq[sym+1])/totalFreq - 1
 			d.low = d.low + (rng*cumFreq[sym])/totalFreq
 
@@ -79,7 +79,6 @@ func (d *ArithmeticDecoder) Decode(cumFreq []uint64, totalFreq uint64) (byte, er
 				d.low <<= 1
 				d.high = (d.high << 1) | 1
 				bit := d.readBit()
-
 				d.value = (d.value << 1) | bit
 			}
 			return sym, nil

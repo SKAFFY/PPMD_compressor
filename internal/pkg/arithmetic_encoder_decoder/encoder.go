@@ -36,7 +36,8 @@ func (e *ArithmeticEncoder) writeBit(bit uint64) {
 	}
 }
 
-func (e *ArithmeticEncoder) Encode(sym byte, cumFreq []uint64, totalFreq uint64) {
+// Encode кодирует символ sym (0..256, где 256 = escape) с использованием накопительных частот.
+func (e *ArithmeticEncoder) Encode(sym int, cumFreq []uint64, totalFreq uint64) {
 	if e.err != nil || totalFreq == 0 {
 		return
 	}
@@ -75,7 +76,6 @@ func (e *ArithmeticEncoder) Flush() error {
 	if e.err != nil {
 		return e.err
 	}
-	// Классический flush: увеличиваем pending и выводим биты
 	e.pending++
 	if e.low < FirstQtr {
 		e.writeBit(0)
@@ -90,7 +90,6 @@ func (e *ArithmeticEncoder) Flush() error {
 			e.pending--
 		}
 	}
-	// Записываем последний неполный байт
 	if e.bits > 0 {
 		_, e.err = e.out.Write([]byte{e.buf})
 	}
